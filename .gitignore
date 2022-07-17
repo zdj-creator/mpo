@@ -1,9 +1,0 @@
-.idea
-venv
-__pycache__
-runs
-log*
-tmp
-
-*.pyc
-*.pt
