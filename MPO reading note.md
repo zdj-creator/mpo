@@ -382,6 +382,24 @@ Off-policy 中由于存在不同策略采样和更新，故在
 
 ref:[1]([【Typical RL 19】Retrace - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/419917893)) [2](https://zhuanlan.zhihu.com/p/56391653)
 
+
+
+#### 12. State Visitation Distribution
+
+
+
+
+
+ref:[1](https://www.alexirpan.com/rl-derivations/#state-visitation--occupency-measure)
+
+
+
+#### 13. Categorical Distribution
+
+
+
+ref:[1](https://zhuanlan.zhihu.com/p/59550457)
+
 ## Maximum a Posteriori Policy Optimisation
 
 MPO 是一种 off-policy 的算法。
