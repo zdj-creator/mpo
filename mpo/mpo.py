@@ -18,7 +18,7 @@ from mpo.replaybuffer import ReplayBuffer
 def bt(m):
     return m.transpose(dim0=-2, dim1=-1)
 
-
+# the trace of m
 def btr(m):
     return m.diagonal(dim1=-2, dim2=-1).sum(-1)
 
@@ -34,10 +34,14 @@ def gaussian_kl(μi, μ, Ai, A):
     :param A: (B, n, n)
     :return: C_μ, C_Σ: scalar
         mean and covariance terms of the KL
-    :return: mean of determinanats of Σi, Σ
+    :return: mean of determinanats of Σi, Σ   行列式
     ref : https://stanford.edu/~jduchi/projects/general_notes.pdf page.13
+
+    μ_1: μi    μ_2: μ
+    Σ_1: Σi    Σ_2: Σ
     """
     n = A.size(-1)
+    # print("n=",n)
     μi = μi.unsqueeze(-1)  # (B, n, 1)
     μ = μ.unsqueeze(-1)  # (B, n, 1)
     Σi = Ai @ bt(Ai)  # (B, n, n)
@@ -50,7 +54,8 @@ def gaussian_kl(μi, μ, Ai, A):
     Σ_det = torch.clamp_min(Σ_det, 1e-6)
     Σi_inv = Σi.inverse()  # (B, n, n)
     Σ_inv = Σ.inverse()  # (B, n, n)
-    inner_μ = ((μ - μi).transpose(-2, -1) @ Σi_inv @ (μ - μi)).squeeze()  # (B,)
+    inner_μ = ((μ - μi).transpose(-2, -1) @ Σi_inv @ (μ - μi)).squeeze()  # (B,)  ? something wrong
+    # inner_μ = ((μ - μi).transpose(-2, -1) @ Σ_inv @ (μ - μi)).squeeze()  # (B,)
     inner_Σ = torch.log(Σ_det / Σi_det) - n + btr(Σ_inv @ Σi)  # (B,)
     C_μ = 0.5 * torch.mean(inner_μ)
     C_Σ = 0.5 * torch.mean(inner_Σ)
@@ -323,6 +328,7 @@ class MPO(object):
                     bounds = [(1e-6, None)]
                     res = minimize(dual, np.array([self.η]), method='SLSQP', bounds=bounds)
                     self.η = res.x[0]
+                    # print("η=", self.η)
 
                     qij = torch.softmax(target_q / self.η, dim=0)  # (N, K) or (da, K)
 
@@ -343,7 +349,8 @@ class MPO(object):
                             )
                             mean_loss_p.append((-loss_p).item())
 
-                            kl_μ, kl_Σ, Σi_det, Σ_det = gaussian_kl(
+                            # C_μ, C_Σ
+                            kl_μ, kl_Σ, Σi_det, Σ_det =  gaussian_kl(
                                 μi=b_μ, μ=μ,
                                 Ai=b_A, A=A)
                             max_kl_μ.append(kl_μ.item())
