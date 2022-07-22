@@ -26,8 +26,8 @@ class CriticContinuous(nn.Module):
         h = torch.cat([state, action], dim=1)  # (B, ds+da)
         h = F.relu(self.lin1(h))  # (B, 128)
         h = F.relu(self.lin2(h))  # (B, 128)
-        v = self.lin3(h)  # (B, 1)
-        return v
+        Q = self.lin3(h)  # (B, 1)
+        return Q
 
 
 class CriticDiscrete(nn.Module):
@@ -52,5 +52,5 @@ class CriticDiscrete(nn.Module):
         h = torch.cat([state, action], dim=1)  # (B, ds+da)
         h = F.relu(self.lin1(h))
         h = F.relu(self.lin2(h))
-        v = self.lin3(h)
-        return v
+        Q = self.lin3(h)
+        return Q

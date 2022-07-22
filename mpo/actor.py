@@ -18,7 +18,7 @@ class ActorContinuous(nn.Module):
         self.lin1 = nn.Linear(self.ds, 256)
         self.lin2 = nn.Linear(256, 256)
         self.mean_layer = nn.Linear(256, self.da)
-        self.cholesky_layer = nn.Linear(256, (self.da * (self.da + 1)) // 2)
+        self.cholesky_layer = nn.Linear(256, (self.da * (self.da + 1)) // 2)  # 计算协方差矩阵的cholesky分解
 
     def forward(self, state):
         """
@@ -32,10 +32,12 @@ class ActorContinuous(nn.Module):
         da = self.da
         action_low = torch.from_numpy(self.env.action_space.low)[None, ...].to(device)  # (1, da)
         action_high = torch.from_numpy(self.env.action_space.high)[None, ...].to(device)  # (1, da)
+        # print("action_low:{}, action_high:{}".format(action_low, action_high))
         x = F.relu(self.lin1(state))
         x = F.relu(self.lin2(x))
         mean = torch.sigmoid(self.mean_layer(x))  # (B, da)
-        mean = action_low + (action_high - action_low) * mean
+        mean = action_low + (action_high - action_low) * mean  # 标准化
+        # cholesky Decomposition
         cholesky_vector = self.cholesky_layer(x)  # (B, (da*(da+1))//2)
         cholesky_diag_index = torch.arange(da, dtype=torch.long) + 1
         cholesky_diag_index = (cholesky_diag_index * (cholesky_diag_index + 1)) // 2 - 1

@@ -8,6 +8,7 @@ class ReplayBuffer:
         self.start_idx_of_episode = []
         self.idx_to_episode_idx = []
         self.episodes = []
+        print(self.episodes)
         self.tmp_episode_buff = []
 
     def store_step(self, state, action, next_state, reward):
